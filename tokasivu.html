@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tokasivu</title>
+<style>
+body,html{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:'Fredoka One',cursive;background:#282828;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,0.05),rgba(0,0,0,0.05) 10px,transparent 10px,transparent 20px);color:#fff;}
+.kello{position:fixed;top:15px;right:20px;font-size:25px;opacity:0;animation:slideInRight 1.2s ease-out 0.3s forwards;}
+.ala-teksti{position:fixed;bottom:15px;width:100%;text-align:center;font-size:16px;color:#aaa;opacity:0;animation:slideInUp 1s ease-out 2.5s forwards;}
+.buttons{margin-top:100px;width:100%;}
+.row{display:flex;justify-content:space-between;padding:0 80px;margin:70px 0;}
+.row button{width:180px;height:60px;transform:rotateY(90deg);opacity:0;}
+.row.top button:nth-child(1){animation:flipIn 0.8s ease-out 0.8s forwards;}
+.row.top button:nth-child(2){animation:flipIn 0.8s ease-out 1s forwards;}
+.row.top button:nth-child(3){animation:flipIn 0.8s ease-out 1.2s forwards;}
+.row.middle button:nth-child(1){animation:flipIn 0.8s ease-out 1.4s forwards;}
+.row.middle button:nth-child(2){animation:flipIn 0.8s ease-out 1.6s forwards;}
+.row.middle button:nth-child(3){animation:flipIn 0.8s ease-out 1.8s forwards;}
+.row.bottom button:nth-child(1){animation:flipIn 0.8s ease-out 2s forwards;}
+.row.bottom button:nth-child(2){animation:flipIn 0.8s ease-out 2.2s forwards;}
+.row.bottom button:nth-child(3){animation:flipIn 0.8s ease-out 2.4s forwards;}
+button{background:#6c00d0;color:#fff;font-size:20px;border:none;border-radius:14px;cursor:pointer;transition:0.25s;position:relative;overflow:hidden;}
+button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 40px #ff00ff;transform:scale(1.05);}
+.ripple{position:absolute;border-radius:50%;border:3px solid rgba(255,0,255,0.8);transform:scale(0);animation:ripple-effect 0.8s ease-out;}
+@keyframes ripple-effect{0%{transform:scale(0);opacity:1;}100%{transform:scale(3);opacity:0;}}
+.particle{position:fixed;width:8px;height:8px;background:#ff00ff;border-radius:50%;pointer-events:none;z-index:9999;box-shadow:0 0 10px #ff00ff,0 0 20px #ff00ff;}
+@keyframes particle-burst{0%{transform:translate(0,0) scale(1);opacity:1;}100%{opacity:0;}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(100px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideInUp{from{opacity:0;transform:translateY(50px);}to{opacity:1;transform:translateY(0);}}
+@keyframes flipIn{0%{opacity:0;transform:rotateY(90deg) scale(0.5);}50%{transform:rotateY(-10deg) scale(1.05);}100%{opacity:1;transform:rotateY(0deg) scale(1);}}
+.popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#111;padding:20px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.8);z-index:1000;text-align:center;color:#fff;}
+.popup canvas{display:block;margin:auto;border:2px solid #6c00d0;border-radius:10px;}
+.close-btn{position:absolute;top:8px;right:12px;font-size:20px;cursor:pointer;color:#fff;}
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;}
+#score{font-size:18px;margin-bottom:10px;color:#0f0;text-shadow:0 0 10px #0f0;}
+#pongModeSelect{display:none;margin-bottom:10px;}
+#pongModeSelect button{width:150px;margin:5px;}
+/* Стили для игры-кликера */
+.clicker-container {text-align:center;padding:20px;width:550px;max-height:80vh;overflow-y:auto;}
+.clicker-title {font-size:24px;margin-bottom:20px;color:#ff00ff;text-shadow:0 0 10px #ff00ff;}
+.clicker-object {width:200px;height:200px;margin:0 auto 20px;cursor:pointer;transition:transform 0.1s;border-radius:20px;overflow:hidden;background:#333;display:flex;align-items:center;justify-content:center;position:relative;}
+.clicker-object img {width:100%;height:100%;object-fit:cover;}
+.clicker-object.dirty::after {content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:url('dust.png') center/cover;opacity:0.7;}
+.clicker-object:active {transform:scale(0.95);}
+.clicker-stats {font-size:18px;margin-bottom:15px;background:#222;padding:10px;border-radius:10px;}
+.clicker-upgrades {display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.clicker-upgrade {background:#444;padding:10px;border-radius:8px;cursor:pointer;transition:background 0.2s;width:140px;font-size:13px;}
+.clicker-upgrade:hover {background:#555;}
+.clicker-upgrade:disabled {background:#333;color:#777;cursor:not-allowed;}
+.clicker-upgrade.unlocked {background:linear-gradient(45deg, #6c00d0, #ff00ff);}
+.clicker-upgrade.locked-by-rebirth {background:linear-gradient(45deg, #333, #666);color:#999;}
+.cat-particle {background:#ff9900 !important;box-shadow:0 0 10px #ff9900,0 0 20px #ff9900 !important;}
+.save-buttons {margin-top:15px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+.save-buttons button {width:120px;font-size:14px;height:40px;}
+.rebirth-button {background:linear-gradient(45deg, #ff4444, #ff9900) !important;font-weight:bold;}
+.rebirth-button:hover {background:linear-gradient(45deg, #ff6666, #ffaa00) !important;}
+.wash-button {background:linear-gradient(45deg, #00aaff, #00ffaa) !important;font-weight:bold;display:none;}
+.wash-button:hover {background:linear-gradient(45deg, #00ccff, #44ffbb) !important;}
+.wash-button:disabled {background:linear-gradient(45deg, #333, #666) !important;color:#999;}
+/* Стили для достижений */
+.achievements-container {margin-top:20px;text-align:left;}
+.achievements-title {font-size:20px;margin-bottom:10px;color:#ffcc00;text-shadow:0 0 10px #ffcc00;}
+.achievements-grid {display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:10px;max-height:200px;overflow-y:auto;}
+.achievement {background:#333;padding:8px;border-radius:8px;display:flex;align-items:center;gap:10px;transition:all 0.3s;}
+.achievement.locked {opacity:0.6;filter:grayscale(1);}
+.achievement.unlocked {background:linear-gradient(45deg, #333, #6c00d0);border:1px solid #ffcc00;}
+.achievement-icon {width:30px;height:30px;border-radius:50%;background:#ffcc00;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.achievement-info {flex:1;}
+.achievement-name {font-size:14px;font-weight:bold;color:#ffcc00;}
+.achievement-desc {font-size:12px;color:#ccc;}
+.achievement-reward {font-size:11px;color:#0f0;margin-top:2px;}
+/* Стили для вкладок */
+.tabs {display:flex;justify-content:center;margin-bottom:15px;border-bottom:2px solid #444;}
+.tab {padding:8px 15px;cursor:pointer;background:#333;border-radius:8px 8px 0 0;margin:0 5px;transition:background 0.3s;}
+.tab.active {background:#6c00d0;}
+.rebirth-stats {margin-top:10px;padding:10px;background:#222;border-radius:8px;font-size:14px;}
+.wash-progress {margin-top:10px;background:#333;border-radius:10px;overflow:hidden;height:20px;display:none;}
+.wash-progress-bar {height:100%;background:linear-gradient(45deg, #00aaff, #00ffaa);width:0%;transition:width 0.3s;}
+.click-warning {color:#ff4444;font-size:14px;margin-top:5px;display:none;}
+</style>
+</head>
+<body>
+
+<div class="kello" id="kello">00:00:00</div>
+
+<div class="buttons">
+  <div class="row top">
+    <button id="btn1">Snake</button>
+    <button id="btn2">Pong</button>
+    <button id="btn3">Cat Clicker</button>
+  </div>
+  <div class="row middle">
+    <button>4</button><button>5</button><button>6</button>
+  </div>
+  <div class="row bottom">
+    <button>7</button><button>8</button><button>9</button>
+  </div>
+</div>
+
+<div class="ala-teksti">Chatgpt teki pelit lol</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="gamePopup">
+  <span class="close-btn" id="closePopup">✖</span>
+  <div id="score">Blue: 0 | Red: 0</div>
+  <div id="pongModeSelect">
+    <button id="btnAI">Single Player</button>
+    <button id="btnHuman">Two Players</button>
+  </div>
+  <canvas id="gameCanvas" width="500" height="400"></canvas>
+  
+  <!-- Контейнер для игры-кликера -->
+  <div id="clickerGame" class="clicker-container" style="display:none;">
+    <h2 class="clicker-title">Funny Cat Clicker</h2>
+    
+    <!-- Вкладки -->
+    <div class="tabs">
+      <div class="tab active" data-tab="main">Main</div>
+      <div class="tab" data-tab="upgrades">Upgrades</div>
+      <div class="tab" data-tab="achievements">Achievements</div>
+    </div>
+    
+    <!-- Основная вкладка -->
+    <div class="tab-content" id="tab-main">
+      <div class="clicker-stats">
+        <div>Cats: <span id="catCount">0</span></div>
+        <div>Cats per click: <span id="catsPerClick">1</span></div>
+        <div>Cats per second: <span id="catsPerSecond">0</span></div>
+        <div>Golden Cat Chance: <span id="goldenChance">0%</span></div>
+        <div>Rebirths: <span id="rebirthCount">0</span></div>
+        <div>Wash Speed: <span id="washSpeed">1x</span></div>
+      </div>
+      <div class="clicker-object" id="clickableCat">
+        <img src="funnycat.png" alt="Funny Cat">
+      </div>
+      <div class="click-warning" id="clickWarning">Cat is dirty! Only 1 click per 5 seconds allowed.</div>
+      <div class="wash-progress" id="washProgress">
+        <div class="wash-progress-bar" id="washProgressBar"></div>
+      </div>
+      <div class="save-buttons">
+        <button id="saveGame">Save Game</button>
+        <button id="resetGame">Reset Game</button>
+        <button id="rebirthButton" class="rebirth-button" style="display:none;">REBIRTH</button>
+        <button id="washButton" class="wash-button">Wash Cat</button>
+        <button id="upgradeWashButton" class="wash-button">Upgrade Wash Speed (50 cats)</button>
+      </div>
+      <div class="rebirth-stats" id="rebirthStats" style="display:none;">
+        <div>Next Rebirth Bonus: +<span id="nextRebirthBonus">0</span>% golden chance</div>
+        <div>Requirement: <span id="rebirthRequirement">0</span> cats</div>
+      </div>
+    </div>
+    
+    <!-- Вкладка улучшений -->
+    <div class="tab-content" id="tab-upgrades" style="display:none;">
+      <div class="clicker-upgrades">
+        <button class="clicker-upgrade" id="upgrade1" data-cost="25" data-type="click" data-value="1">
+          Better Petting<br>+1 per click<br>Cost: 25
+        </button>
+        <button class="clicker-upgrade" id="upgrade2" data-cost="100" data-type="auto" data-value="1">
+          Cat Friend<br>+1 per second<br>Cost: 100
+        </button>
+        <button class="clicker-upgrade" id="upgrade3" data-cost="500" data-type="click" data-value="3">
+          Cat Magnet<br>+3 per click<br>Cost: 500
+        </button>
+        <button class="clicker-upgrade" id="upgrade4" data-cost="1500" data-type="auto" data-value="3">
+          Cat Colony<br>+3 per second<br>Cost: 1500
+        </button>
+        <button class="clicker-upgrade" id="upgrade5" data-cost="5000" data-type="click" data-value="5">
+          Cat Paradise<br>+5 per click<br>Cost: 5000
+        </button>
+        <button class="clicker-upgrade" id="upgrade6" data-cost="15000" data-type="auto" data-value="5">
+          Cat Empire<br>+5 per second<br>Cost: 15000
+        </button>
+        <button class="clicker-upgrade locked-by-rebirth" id="upgrade7" data-cost="50000" data-type="golden" data-value="2" data-rebirth="1">
+          Golden Cats<br>+2% golden chance<br>Cost: 50000<br>Requires: 1 Rebirth
+        </button>
+        <button class="clicker-upgrade locked-by-rebirth" id="upgrade8" data-cost="150000" data-type="multiplier" data-value="1.5" data-rebirth="2">
+          Cat Multiplier<br>1.5x all production<br>Cost: 150000<br>Requires: 2 Rebirths
+        </button>
+        <button class="clicker-upgrade locked-by-rebirth" id="upgrade9" data-cost="500000" data-type="click" data-value="10" data-rebirth="3">
+          Super Petting<br>+10 per click<br>Cost: 500000<br>Requires: 3 Rebirths
+        </button>
+        <button class="clicker-upgrade locked-by-rebirth" id="upgrade10" data-cost="1500000" data-type="auto" data-value="15" data-rebirth="4">
+          Cat Universe<br>+15 per second<br>Cost: 1500000<br>Requires: 4 Rebirths
+        </button>
+      </div>
+    </div>
+    
+    <!-- Вкладка достижений -->
+    <div class="tab-content" id="tab-achievements" style="display:none;">
+      <div class="achievements-container">
+        <div class="achievements-title">Achievements</div>
+        <div class="achievements-grid" id="achievementsList">
+          <!-- Достижения будут добавляться через JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Создаем аудио элементы для звуков
+const rebirthSound = new Audio('miau.mp3');
+const clickSound = new Audio('click.mp3');
+
+document.addEventListener("keydown", function(e) {
+  if(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+
+function paivitaKello() {
+    let nyt = new Date();
+    let f = new Intl.DateTimeFormat("fi-FI", {
+        timeZone: "Europe/Helsinki",
+        hour: "2-digit", 
+        minute: "2-digit", 
+        second: "2-digit", 
+        hour12: false
+    });
+    document.getElementById('kello').textContent = f.format(nyt);
+}
+setInterval(paivitaKello, 1000);
+paivitaKello();
+
+const btn1 = document.getElementById("btn1");
+const btn2 = document.getElementById("btn2"); 
+const btn3 = document.getElementById("btn3");
+const popup = document.getElementById("gamePopup");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("closePopup");
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const pongModeSelect = document.getElementById("pongModeSelect");
+const btnAI = document.getElementById("btnAI");
+const btnHuman = document.getElementById("btnHuman");
+const clickerGame = document.getElementById("clickerGame");
+const saveGameBtn = document.getElementById("saveGame");
+const resetGameBtn = document.getElementById("resetGame");
+const rebirthButton = document.getElementById("rebirthButton");
+const rebirthStats = document.getElementById("rebirthStats");
+const washButton = document.getElementById("washButton");
+const upgradeWashButton = document.getElementById("upgradeWashButton");
+const clickableCat = document.getElementById("clickableCat");
+const clickWarning = document.getElementById("clickWarning");
+const washProgress = document.getElementById("washProgress");
+const washProgressBar = document.getElementById("washProgressBar");
+
+let gameMode;
+let pongMode = "human";
+let snake = [];
+let dx = 0, dy = 0, box = 20, scoreSnake = 0, food = {}, lastTimeSnake, speedSnake;
+let paddleHeight = 80, paddleWidth = 15, leftY, rightY, ballX, ballY, ballSpeedX, ballSpeedY, scoreBlue = 0, scoreRed = 0;
+let keys = {};
+
+// Переменные для игры-кликера
+let cats = 0;
+let catsPerClick = 1;
+let catsPerSecond = 0;
+let goldenCatChance = 0;
+let globalMultiplier = 1;
+let rebirthCount = 0;
+let washSpeed = 1;
+let isCatDirty = false;
+let isWashing = false;
+let washTime = 50;
+let currentWashTime = 0;
+let lastClickTime = 0;
+let clickCooldown = 0;
+let autoCatsInterval;
+let washInterval;
+
+// Система достижений
+const achievements = [
+    { id: 'first_click', name: 'First Pet', desc: 'Pet your first cat', reward: '+0.5% golden cat chance', condition: () => cats >= 1, unlocked: false, bonus: () => goldenCatChance += 0.5 },
+    { id: 'hundred_cats', name: 'Cat Lover', desc: 'Collect 100 cats', reward: '+2 cats per click', condition: () => cats >= 100, unlocked: false, bonus: () => catsPerClick += 2 },
+    { id: 'thousand_cats', name: 'Cat Enthusiast', desc: 'Collect 1000 cats', reward: '1.2x production multiplier', condition: () => cats >= 1000, unlocked: false, bonus: () => globalMultiplier *= 1.2 },
+    { id: 'ten_thousand', name: 'Cat Overlord', desc: 'Collect 10,000 cats', reward: '+2% golden cat chance', condition: () => cats >= 10000, unlocked: false, bonus: () => goldenCatChance += 2 },
+    { id: 'first_upgrade', name: 'Upgrade Master', desc: 'Buy your first upgrade',reward: '+50 cats', condition: () => Object.values(gameState.upgrades).some(u => u.purchased > 0), unlocked: false, bonus: () => cats += 50 },
+    { id: 'five_upgrades', name: 'Upgrade Collector', desc: 'Buy 5 different upgrades', reward: '+3 cats per click', condition: () => Object.values(gameState.upgrades).filter(u => u.purchased > 0).length >= 5, unlocked: false, bonus: () => catsPerClick += 3 },
+    { id: 'golden_cat', name: 'Golden Touch', desc: 'Get your first golden cat', reward: 'Unlocks golden cat upgrades', condition: () => goldenCatChance > 0, unlocked: false, bonus: () => {} },
+    { id: 'million_cats', name: 'Catillionaire', desc: 'Collect 1,000,000 cats', reward: '2x production multiplier', condition: () => cats >= 1000000, unlocked: false, bonus: () => globalMultiplier *= 2 }
+];
+
+// Состояние игры для сохранения
+let gameState = {
+    cats: 0,
+    catsPerClick: 1,
+    catsPerSecond: 0,
+    goldenCatChance: 0,
+    globalMultiplier: 1,
+    rebirthCount: 0,
+    washSpeed: 1,
+    isCatDirty: false,
+    achievements: achievements.map(a => ({ id: a.id, unlocked: a.unlocked })),
+    upgrades: {
+        upgrade1: { cost: 25, purchased: 0 },
+        upgrade2: { cost: 100, purchased: 0 },
+        upgrade3: { cost: 500, purchased: 0 },
+        upgrade4: { cost: 1500, purchased: 0 },
+        upgrade5: { cost: 5000, purchased: 0 },
+        upgrade6: { cost: 15000, purchased: 0 },
+        upgrade7: { cost: 50000, purchased: 0 },
+        upgrade8: { cost: 150000, purchased: 0 },
+        upgrade9: { cost: 500000, purchased: 0 },
+        upgrade10: { cost: 1500000, purchased: 0 }
+    },
+    lastSave: Date.now()
+};
+
+// Загрузка сохраненной игры при запуске
+function loadGame() {
+    const saved = localStorage.getItem('catClickerSave');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            
+            cats = parsed.cats || 0;
+            catsPerClick = parsed.catsPerClick || 1;
+            catsPerSecond = parsed.catsPerSecond || 0;
+            goldenCatChance = parsed.goldenCatChance || 0;
+            globalMultiplier = parsed.globalMultiplier || 1;
+            rebirthCount = parsed.rebirthCount || 0;
+            washSpeed = parsed.washSpeed || 1;
+            isCatDirty = parsed.isCatDirty || false;
+            
+            if (parsed.upgrades) {
+                gameState.upgrades = { ...gameState.upgrades, ...parsed.upgrades };
+            }
+            
+            if (parsed.achievements) {
+                parsed.achievements.forEach(savedAchievement => {
+                    const achievement = achievements.find(a => a.id === savedAchievement.id);
+                    if (achievement) {
+                        achievement.unlocked = savedAchievement.unlocked;
+                    }
+                });
+            }
+            
+            updateCatAppearance();
+            
+            console.log('Game loaded successfully');
+        } catch (e) {
+            console.error('Error loading saved game:', e);
+        }
+    }
+}
+
+// Сохранение игры
+function saveGame() {
+    gameState.cats = cats;
+    gameState.catsPerClick = catsPerClick;
+    gameState.catsPerSecond = catsPerSecond;
+    gameState.goldenCatChance = goldenCatChance;
+    gameState.globalMultiplier = globalMultiplier;
+    gameState.rebirthCount = rebirthCount;
+    gameState.washSpeed = washSpeed;
+    gameState.isCatDirty = isCatDirty;
+    gameState.lastSave = Date.now();
+    
+    gameState.achievements = achievements.map(a => ({ id: a.id, unlocked: a.unlocked }));
+    
+    localStorage.setItem('catClickerSave', JSON.stringify(gameState));
+    
+    const originalText = saveGameBtn.textContent;
+    saveGameBtn.textContent = 'Saved!';
+    saveGameBtn.style.background = '#00aa00';
+    setTimeout(() => {
+        saveGameBtn.textContent = originalText;
+        saveGameBtn.style.background = '';
+    }, 1000);
+    
+    console.log('Game saved successfully');
+}
+
+// Сброс игры
+function resetGame() {
+    if (confirm('Are you sure you want to reset your progress? This cannot be undone!')) {
+        cats = 0;
+        catsPerClick = 1;
+        catsPerSecond = 0;
+        goldenCatChance = 0;
+        globalMultiplier = 1;
+        rebirthCount = 0;
+        washSpeed = 1;
+        isCatDirty = false;
+        isWashing = false;
+        
+        if (washInterval) {
+            clearInterval(washInterval);
+        }
+        
+        achievements.forEach(a => a.unlocked = false);
+        
+        gameState.upgrades = {
+            upgrade1: { cost: 25, purchased: 0 },
+            upgrade2: { cost: 100, purchased: 0 },
+            upgrade3: { cost: 500, purchased: 0 },
+            upgrade4: { cost: 1500, purchased: 0 },
+            upgrade5: { cost: 5000, purchased: 0 },
+            upgrade6: { cost: 15000, purchased: 0 },
+            upgrade7: { cost: 50000, purchased: 0 },
+            upgrade8: { cost: 150000, purchased: 0 },
+            upgrade9: { cost: 500000, purchased: 0 },
+            upgrade10: { cost: 1500000, purchased: 0 }
+        };
+        
+        updateClickerStats();
+        updateAchievementsDisplay();
+        updateRebirthButton();
+        updateCatAppearance();
+        updateWashButton();
+        saveGame();
+        
+        const originalText = resetGameBtn.textContent;
+        resetGameBtn.textContent = 'Reset!';
+        resetGameBtn.style.background = '#ff4444';
+        setTimeout(() => {
+            resetGameBtn.textContent = originalText;
+            resetGameBtn.style.background = '';
+        }, 1000);
+    }
+}
+
+// Rebirth система
+function performRebirth() {
+    const rebirthRequirement = getRebirthRequirement();
+    
+    if (cats >= rebirthRequirement) {
+        rebirthSound.play().catch(e => console.log('Audio play failed:', e));
+        
+        rebirthCount++;
+        
+        const savedGoldenChance = goldenCatChance;
+        const savedWashSpeed = washSpeed;
+        
+        cats = 0;
+        catsPerClick = 1;
+        catsPerSecond = 0;
+        globalMultiplier = 1;
+        isCatDirty = false;
+        isWashing = false;
+        
+        if (washInterval) {
+            clearInterval(washInterval);
+        }
+        
+        goldenCatChance = savedGoldenChance;
+        washSpeed = savedWashSpeed;
+        
+        const rebirthBonus = Math.floor(rebirthCount * 0.5) + 1;
+        goldenCatChance += rebirthBonus;
+        
+        gameState.upgrades = {
+            upgrade1: { cost: 25, purchased: 0 },
+            upgrade2: { cost: 100, purchased: 0 },
+            upgrade3: { cost: 500, purchased: 0 },
+            upgrade4: { cost: 1500, purchased: 0 },
+            upgrade5: { cost: 5000, purchased: 0 },
+            upgrade6: { cost: 15000, purchased: 0 },
+            upgrade7: { cost: 50000, purchased: 0 },
+            upgrade8: { cost: 150000, purchased: 0 },
+            upgrade9: { cost: 500000, purchased: 0 },
+            upgrade10: { cost: 1500000, purchased: 0 }
+        };
+        
+        achievements.forEach(a => {
+            if (!a.id.includes('golden') && a.id !== 'first_click') {
+                a.unlocked = false;
+            }
+        });
+        
+        updateClickerStats();
+        updateAchievementsDisplay();
+        updateUpgradeButtons();
+        updateRebirthButton();
+        updateCatAppearance();
+        updateWashButton();
+        saveGame();
+        
+        showRebirthNotification(rebirthBonus);
+    }
+}
+
+// Получение требования для rebirth
+function getRebirthRequirement() {
+    return 50000 * (rebirthCount + 1);
+}
+
+// Получение бонуса за следующий rebirth
+function getNextRebirthBonus() {
+    return Math.floor((rebirthCount + 1) * 0.5) + 1;
+}
+
+// Обновление кнопки rebirth
+function updateRebirthButton() {
+    const rebirthRequirement = getRebirthRequirement();
+    const nextBonus = getNextRebirthBonus();
+    
+    if (cats >= rebirthRequirement) {
+        rebirthButton.style.display = 'block';
+        rebirthStats.style.display = 'block';
+        rebirthButton.disabled = false;
+        rebirthButton.textContent = `REBIRTH (+${nextBonus}%)`;
+    } else {
+        rebirthButton.style.display = 'block';
+        rebirthStats.style.display = 'block';
+        rebirthButton.disabled = true;
+        rebirthButton.textContent = 'REBIRTH';
+    }
+    
+    document.getElementById('nextRebirthBonus').textContent = nextBonus;
+    document.getElementById('rebirthRequirement').textContent = rebirthRequirement.toLocaleString();
+    document.getElementById('rebirthCount').textContent = rebirthCount;
+}
+
+// Показать уведомление о rebirth
+function showRebirthNotification(bonus) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(45deg, #ff4444, #ff9900);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        z-index: 10000;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(255, 153, 0, 0.5);
+        animation: slideDown 0.5s ease-out;
+    `;
+    
+    notification.innerHTML = `
+        <div style="font-size: 18px; font-weight: bold;">🔥 REBIRTH COMPLETE! 🔥</div>
+        <div style="font-size: 16px; margin-top: 5px;">+${bonus}% Golden Cat Chance</div>
+        <div style="font-size: 12px; margin-top: 3px;">Total Rebirths: ${rebirthCount}</div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideUp 0.5s ease-in forwards';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Система грязной кошки
+function makeCatDirty() {
+    if (!isCatDirty && !isWashing) {
+        isCatDirty = true;
+        updateCatAppearance();
+        updateWashButton();
+        saveGame();
+    }
+}
+
+// Мытье кошки
+function startWashing() {
+    if (isCatDirty && !isWashing) {
+        isWashing = true;
+        currentWashTime = 0;
+        const totalWashTime = washTime / washSpeed;
+        
+        washProgress.style.display = 'block';
+        washButton.disabled = true;
+        
+        washInterval = setInterval(() => {
+            currentWashTime++;
+            const progress = (currentWashTime / totalWashTime) * 100;
+            washProgressBar.style.width = `${progress}%`;
+            
+            if (currentWashTime >= totalWashTime) {
+                finishWashing();
+            }
+        }, 1000);
+    }
+}
+
+// Завершение мытья
+function finishWashing() {
+    clearInterval(washInterval);
+    isCatDirty = false;
+    isWashing = false;
+    updateCatAppearance();
+    updateWashButton();
+    washProgress.style.display = 'none';
+    washProgressBar.style.width = '0%';
+    saveGame();
+}
+
+// Обновление внешнего вида кошки
+function updateCatAppearance() {
+    if (isCatDirty) {
+        clickableCat.classList.add('dirty');
+        clickWarning.style.display = 'block';
+        clickCooldown = 5000;
+    } else {
+        clickableCat.classList.remove('dirty');
+        clickWarning.style.display = 'none';
+        clickCooldown = 0;
+    }
+}
+
+// Обновление кнопки мытья
+function updateWashButton() {
+    if (isCatDirty && !isWashing) {
+        washButton.style.display = 'block';
+        washButton.disabled = false;
+        washButton.textContent = `Wash Cat (${Math.ceil(washTime / washSpeed)}s)`;
+    } else if (isWashing) {
+        washButton.style.display = 'block';
+        washButton.disabled = true;
+        washButton.textContent = 'Washing...';
+    } else {
+        washButton.style.display = 'block';
+        washButton.disabled = true;
+        washButton.textContent = 'Cat is Clean';
+    }
+    
+    upgradeWashButton.style.display = 'block';
+    upgradeWashButton.textContent = `Upgrade Wash Speed (${Math.ceil(50 * Math.pow(1.5, washSpeed))} cats)`;
+    upgradeWashButton.disabled = cats < Math.ceil(50 * Math.pow(1.5, washSpeed));
+}
+
+// Улучшение скорости мытья
+function upgradeWashSpeed() {
+    const cost = Math.ceil(50 * Math.pow(1.5, washSpeed));
+    if (cats >= cost) {
+        cats -= cost;
+        washSpeed += 0.5;
+        updateClickerStats();
+        updateWashButton();
+        saveGame();
+    }
+}
+
+// Проверка достижений
+function checkAchievements() {
+    let newAchievements = false;
+    
+    achievements.forEach(achievement => {
+        if (!achievement.unlocked && achievement.condition()) {
+            achievement.unlocked = true;
+            achievement.bonus();
+            newAchievements = true;
+            
+            showAchievementNotification(achievement);
+            
+            console.log(`Achievement unlocked: ${achievement.name}`);
+        }
+    });
+    
+    if (newAchievements) {
+        updateAchievementsDisplay();
+        saveGame();
+    }
+}
+
+// Показать уведомление о достижении
+function showAchievementNotification(achievement) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(45deg, #6c00d0, #ffcc00);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        z-index: 10000;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+        animation: slideDown 0.5s ease-out;
+    `;
+    
+    notification.innerHTML = `
+        <div style="font-size: 18px; font-weight: bold;">🎉 Achievement Unlocked! 🎉</div>
+        <div style="font-size: 16px; margin-top: 5px;">${achievement.name}</div>
+        <div style="font-size: 12px; margin-top: 3px;">${achievement.desc}</div>
+        <div style="font-size: 11px; margin-top: 2px; color: #0f0;">Reward: ${achievement.reward}</div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideUp 0.5s ease-in forwards';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Обновление отображения достижений
+function updateAchievementsDisplay() {
+    const achievementsList = document.getElementById('achievementsList');
+    achievementsList.innerHTML = '';
+    
+    achievements.forEach(achievement => {
+        const achievementEl = document.createElement('div');
+        achievementEl.className = `achievement ${achievement.unlocked ? 'unlocked' : 'locked'}`;
+        
+        achievementEl.innerHTML = `
+            <div class="achievement-icon">${achievement.unlocked ? '🏆' : '🔒'}</div>
+            <div class="achievement-info">
+                <div class="achievement-name">${achievement.name}</div>
+                <div class="achievement-desc">${achievement.desc}</div>
+                ${achievement.unlocked ? `<div class="achievement-reward">${achievement.reward}</div>` : ''}
+            </div>
+        `;
+        
+        achievementsList.appendChild(achievementEl);
+    });
+}
+
+// Автосохранение каждые 30 секунд
+function startAutosave() {
+    setInterval(() => {
+        if (gameMode === "clicker") {
+            saveGame();
+        }
+    }, 30000);
+}
+
+// Загружаем игру при запуске страницы
+loadGame();
+startAutosave();
+
+// Система вкладок
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(`tab-${tabId}`).style.display = 'block';
+    });
+});
+
+// Обработчики кнопок игр
+btn1.onclick = () => {
+    overlay.style.display = "block";
+    popup.style.display = "block";
+    pongModeSelect.style.display = "none";
+    clickerGame.style.display = "none";
+    canvas.style.display = "block";
+    startSnake();
+    gameMode = "snake";
+}
+
+btn2.onclick = () => {
+    overlay.style.display = "block"; 
+    popup.style.display = "block"; 
+    pongModeSelect.style.display = "block"; 
+    clickerGame.style.display = "none";
+    canvas.style.display = "block";
+    scoreEl.textContent = "";
+    gameMode = "pongSelect";
+}
+
+btn3.onclick = () => {
+    overlay.style.display = "block"; 
+    popup.style.display = "block"; 
+    pongModeSelect.style.display = "none";
+    clickerGame.style.display = "block";
+    canvas.style.display = "none";
+    scoreEl.textContent = "";
+    startClicker();
+    gameMode = "clicker";
+}
+
+function closeGame() {
+    overlay.style.display = "none"; 
+    popup.style.display = "none";
+    gameMode = null; 
+    snake = []; 
+    dx = 0; 
+    dy = 0; 
+    scoreSnake = 0;
+    leftY = (canvas.height - paddleHeight) / 2; 
+    rightY = (canvas.height - paddleHeight) / 2;
+    ballX = canvas.width / 2; 
+    ballY = canvas.height / 2; 
+    ballSpeedX = 1; 
+    ballSpeedY = 1; 
+    scoreBlue = 0; 
+    scoreRed = 0; 
+    updateScore();
+    
+    if (gameMode === "clicker") {
+        saveGame();
+    }
+    
+    if (autoCatsInterval) {
+        clearInterval(autoCatsInterval);
+    }
+    if (washInterval) {
+        clearInterval(washInterval);
+    }
+}
+
+closeBtn.onclick = closeGame; 
+overlay.onclick = closeGame;
+
+// ИГРА SNAKE
+function startSnake() {
+    snake = [{x: 9 * box, y: 10 * box}]; 
+    dx = box; 
+    dy = 0; 
+    scoreSnake = 0; 
+    lastTimeSnake = 0; 
+    speedSnake = 200;
+    food = {x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box};
+    scoreEl.textContent = "Score: " + scoreSnake;
+    requestAnimationFrame(snakeLoop);
+}
+
+document.addEventListener("keydown", e => {
+    if(gameMode === "snake") {
+        if(e.key === "ArrowLeft" && dx === 0) {
+            dx = -box; 
+            dy = 0;
+        } else if(e.key === "ArrowUp" && dy === 0) {
+            dx = 0; 
+            dy = -box;
+        } else if(e.key === "ArrowRight" && dx === 0) {
+            dx = box; 
+            dy = 0;
+        } else if(e.key === "ArrowDown" && dy === 0) {
+            dx = 0; 
+            dy = box;
+        }
+    }
+});
+
+function drawSnake() {
+    ctx.fillStyle = "#222"; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for(let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? "lime" : "#0f0"; 
+        ctx.shadowColor = "lime"; 
+        ctx.shadowBlur = 15;
+        ctx.fillRect(snake[i].x, snake[i].y, box - 2, box - 2);
+    }
+    ctx.shadowBlur = 0; 
+    ctx.fillStyle = "red"; 
+    ctx.fillRect(food.x, food.y, box, box);
+}
+
+function updateSnake() {
+    let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+    if(head.x === food.x && head.y === food.y) {
+        scoreSnake++; 
+        scoreEl.textContent = "Score: " + scoreSnake; 
+        food = {x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box};
+    } else {
+        snake.pop();
+    }
+    if(head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height || 
+       snake.some(s => s.x === head.x && s.y === head.y)) {
+        alert("Game Over! Final Score: " + scoreSnake); 
+        startSnake(); 
+        return;
+    }
+    snake.unshift(head);
+}
+
+function snakeLoop(timestamp) {
+    if(!lastTimeSnake) lastTimeSnake = timestamp;
+    if(timestamp - lastTimeSnake > speedSnake) { 
+        updateSnake(); 
+        drawSnake(); 
+        lastTimeSnake = timestamp; 
+    } else {
+        drawSnake();
+    }
+    if(gameMode === "snake") requestAnimationFrame(snakeLoop);
+}
+
+// ИГРА PONG
+function startPong(mode) {
+    pongMode = mode; 
+    pongModeSelect.style.display = "none";
+    leftY = (canvas.height - paddleHeight) / 2; 
+    rightY = (canvas.height - paddleHeight) / 2;
+    ballX = canvas.width / 2; 
+    ballY = canvas.height / 2; 
+    ballSpeedX = 2 * (Math.random() < 0.5 ? -1 : 1); 
+    ballSpeedY = 2 * (Math.random() < 0.5 ? -1 : 1);
+    scoreBlue = 0; 
+    scoreRed = 0; 
+    updateScore();
+    gameMode = "pong";
+    requestAnimationFrame(pongLoop);
+}
+
+function updateScore() {
+    scoreEl.textContent = `Blue: ${scoreBlue} | Red: ${scoreRed}`;
+}
+
+document.addEventListener("keydown", e => {
+    keys[e.key] = true;
+});
+
+document.addEventListener("keyup", e => {
+    keys[e.key] = false;
+});
+
+function movePaddles() {
+    if(gameMode !== "pong") return;
+    if(keys["w"]) {
+        leftY -= 5; 
+        if(leftY < 0) leftY = 0;
+    }
+    if(keys["s"]) {
+        leftY += 5; 
+        if(leftY + paddleHeight > canvas.height) leftY = canvas.height - paddleHeight;
+    }
+    if(pongMode === "human") { 
+        if(keys["ArrowUp"]) {
+            rightY -= 5;
+            if(rightY < 0) rightY = 0;
+        }
+        if(keys["ArrowDown"]) {
+            rightY += 5;
+            if(rightY + paddleHeight > canvas.height) rightY = canvas.height - paddleHeight;
+        }
+    } else { 
+        let target = ballY - paddleHeight / 1;
+        if(target > rightY + 4) {
+            rightY += 4;
+        } else if(target < rightY - 4) {
+            rightY -= 4;
+        }
+        if(rightY < 0) rightY = 0; 
+        if(rightY + paddleHeight > canvas.height) rightY = canvas.height - paddleHeight;
+    }
+}
+
+function drawPong() {
+    ctx.fillStyle = "#222"; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "blue"; 
+    ctx.shadowColor = "blue"; 
+    ctx.shadowBlur = 10; 
+    ctx.fillRect(10, leftY, paddleWidth, paddleHeight);
+    ctx.fillStyle = "red"; 
+    ctx.shadowColor = "red"; 
+    ctx.shadowBlur = 10; 
+    ctx.fillRect(canvas.width - 25, rightY, paddleWidth, paddleHeight);
+    ctx.shadowBlur = 0; 
+    ctx.fillStyle = "red"; 
+    ctx.fillRect(ballX - 5, ballY - 5, 10, 10);
+}
+
+function updatePong() {
+    movePaddles(); 
+    ballX += ballSpeedX; 
+    ballY += ballSpeedY;
+    if(ballY < 0 || ballY > canvas.height) ballSpeedY *= -1;
+    if(ballX <= 10 + paddleWidth && ballY >= leftY && ballY <= leftY + paddleHeight) {
+        ballSpeedX *= -1.1; 
+        ballSpeedY *= 1.1;
+    }
+    if(ballX >= canvas.width - 25 && ballY >= rightY && ballY <= rightY + paddleHeight) {
+        ballSpeedX *= -1.1; 
+        ballSpeedY *= 1.1;
+    }
+    ballSpeedX = Math.max(Math.min(ballSpeedX, 10), -10);
+    ballSpeedY = Math.max(Math.min(ballSpeedY, 10), -10);
+    if(ballX < 0) {
+        scoreRed++; 
+        updateScore(); 
+        resetBall();
+    }
+    if(ballX > canvas.width) {
+        scoreBlue++; 
+        updateScore(); 
+        resetBall();
+    }
+}
+
+function resetBall() {
+    ballX = canvas.width / 2; 
+    ballY = canvas.height / 2; 
+    ballSpeedX = 2 * (Math.random() < 0.5 ? -1 : 1); 
+    ballSpeedY = 2 * (Math.random() < 0.5 ? -1 : 1);
+}
+
+function pongLoop() {
+    updatePong(); 
+    drawPong(); 
+    if(gameMode === "pong") requestAnimationFrame(pongLoop);
+}
+
+btnAI.onclick = () => {
+    startPong("ai");
+}
+
+btnHuman.onclick = () => {
+    startPong("human");
+}
+
+// CAT CLICKER GAME
+function startClicker() {
+    updateClickerStats();
+    updateAchievementsDisplay();
+    updateRebirthButton();
+    updateCatAppearance();
+    updateWashButton();
+    updateUpgradeButtons();
+    
+    if (autoCatsInterval) {
+        clearInterval(autoCatsInterval);
+    }
+    
+    autoCatsInterval = setInterval(() => {
+        if (catsPerSecond > 0) {
+            cats += catsPerSecond * globalMultiplier;
+            updateClickerStats();
+            updateRebirthButton();
+            checkAchievements();
+        }
+    }, 1000);
+    
+    saveGameBtn.onclick = saveGame;
+    resetGameBtn.onclick = resetGame;
+    rebirthButton.onclick = performRebirth;
+    washButton.onclick = startWashing;
+    upgradeWashButton.onclick = upgradeWashSpeed;
+}
+
+// Обновление кнопок улучшений с проверкой rebirth требований
+function updateUpgradeButtons() {
+    document.querySelectorAll('.clicker-upgrade').forEach(upgrade => {
+        const id = upgrade.id;
+        const upgradeData = gameState.upgrades[id];
+        const rebirthRequired = parseInt(upgrade.getAttribute('data-rebirth') || 0);
+        
+        if (rebirthRequired > 0 && rebirthCount < rebirthRequired) {
+            upgrade.classList.add('locked-by-rebirth');
+            upgrade.disabled = true;
+            return;
+        } else {
+            upgrade.classList.remove('locked-by-rebirth');
+        }
+        
+        upgrade.setAttribute('data-cost', upgradeData.cost);
+        upgrade.innerHTML = upgrade.innerHTML.replace(/Cost: \d+/, `Cost: ${upgradeData.cost}`);
+        
+        upgrade.onclick = function() {
+            const cost = parseInt(this.getAttribute('data-cost'));
+            const type = this.getAttribute('data-type');
+            const value = parseFloat(this.getAttribute('data-value'));
+            
+            if (cats >= cost) {
+                cats -= cost;
+                gameState.upgrades[id].purchased++;
+                
+                if (type === 'click') {
+                    catsPerClick += value;
+                } else if (type === 'auto') {
+                    catsPerSecond += value;
+                } else if (type === 'golden') {
+                    goldenCatChance += value;
+                } else if (type === 'multiplier') {
+                    globalMultiplier *= value;
+                }
+                
+                const newCost = Math.floor(cost * 1.8);
+                gameState.upgrades[id].cost = newCost;
+                this.setAttribute('data-cost', newCost);
+                this.innerHTML = this.innerHTML.replace(/Cost: \d+/, `Cost: ${newCost}`);
+                
+                this.classList.add('unlocked');
+                
+                updateClickerStats();
+                checkAchievements();
+                saveGame();
+            }
+        };
+        
+        const cost = parseInt(upgrade.getAttribute('data-cost'));
+        upgrade.disabled = cats < cost;
+    });
+}
+
+function updateClickerStats() {
+    document.getElementById('catCount').textContent = Math.floor(cats).toLocaleString();
+    document.getElementById('catsPerClick').textContent = (catsPerClick * globalMultiplier).toFixed(1);
+    document.getElementById('catsPerSecond').textContent = (catsPerSecond * globalMultiplier).toFixed(1);
+    document.getElementById('goldenChance').textContent = `${goldenCatChance.toFixed(1)}%`;
+    document.getElementById('rebirthCount').textContent = rebirthCount;
+    document.getElementById('washSpeed').textContent = `${washSpeed.toFixed(1)}x`;
+    
+    document.querySelectorAll('.clicker-upgrade').forEach(upgrade => {
+        const cost = parseInt(upgrade.getAttribute('data-cost'));
+        upgrade.disabled = cats < cost;
+    });
+}
+
+// Обработчик клика по коту с системой грязной кошки
+let clickCounter = 0;
+const maxClicksBeforeDirty = 50;
+
+document.getElementById('clickableCat').onclick = function(event) {
+    const currentTime = Date.now();
+    
+    if (isCatDirty && currentTime - lastClickTime < clickCooldown) {
+        return;
+    }
+    
+    lastClickTime = currentTime;
+    
+    clickSound.currentTime = 0;
+    clickSound.play().catch(e => console.log('Audio play failed:', e));
+    
+    let clickValue = catsPerClick * globalMultiplier;
+    
+    if (Math.random() * 100 < goldenCatChance) {
+        clickValue *= 3;
+        showGoldenCatEffect(event);
+    }
+    
+    cats += clickValue;
+    clickCounter++;
+    
+    if (clickCounter >= maxClicksBeforeDirty && !isCatDirty && !isWashing) {
+        makeCatDirty();
+        clickCounter = 0;
+    }
+    
+    updateClickerStats();
+    updateRebirthButton();
+    updateWashButton();
+    checkAchievements();
+    
+    createCatParticles(event);
+    
+    this.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        this.style.transform = 'scale(1)';
+    }, 100);
+};
+
+function createCatParticles(event) {
+    for(let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle', 'cat-particle');
+        particle.style.left = event.clientX + 'px';
+        particle.style.top = event.clientY + 'px';
+        document.body.appendChild(particle);
+        
+        const angle = (i / 8) * Math.PI * 2;
+        const velocity = 50 + Math.random() * 30;
+        const vx = Math.cos(angle) * velocity;
+        const vy = Math.sin(angle) * velocity;
+        
+        particle.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${vx}px, ${vy}px) scale(0)`, opacity: 0 }
+        ], {
+            duration: 600,
+            easing: 'cubic-bezier(0, .9, .57, 1)'
+        });
+        
+        setTimeout(() => particle.remove(), 600);
+    }
+}
+
+function showGoldenCatEffect(event) {
+    const goldenEffect = document.createElement('div');
+    goldenEffect.style.cssText = `
+        position: fixed;
+        left: ${event.clientX - 50}px;
+        top: ${event.clientY - 50}px;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, #ffcc00, #ff9900);
+        border-radius: 50%;
+        z-index: 9998;
+        pointer-events: none;
+        animation: goldenPulse 1s ease-out forwards;
+    `;
+    
+    document.body.appendChild(goldenEffect);
+    
+    const goldenText = document.createElement('div');
+    goldenText.style.cssText = `
+        position: fixed;
+        left: 50%;
+        top: 100px;
+        transform: translateX(-50%);
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffcc00;
+        text-shadow: 0 0 10px #ff9900;
+        z-index: 9999;
+        pointer-events: none;
+        animation: fadeOut 2s ease-out forwards;
+    `;
+    goldenText.textContent = 'GOLDEN CAT! x3';
+    
+    document.body.appendChild(goldenText);
+    
+    setTimeout(() => {
+        goldenEffect.remove();
+        goldenText.remove();
+    }, 2000);
+}
+
+// Добавляем CSS анимации
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes goldenPulse {
+        0% { transform: scale(0); opacity: 1; }
+        50% { transform: scale(1.5); opacity: 0.7; }
+        100% { transform: scale(2); opacity: 0; }
+    }
+    @keyframes fadeOut {
+        0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        100% { opacity: 0; transform: translateX(-50%) translateY(-50px); }
+    }
+    @keyframes slideDown {
+        0% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+        100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+    @keyframes slideUp {
+        0% { transform: translateX(-50%) translateY(0); opacity: 1; }
+        100% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+// Add click effects to all buttons
+document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+        
+        for(let i = 0; i < 8; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = e.clientX + 'px';
+            particle.style.top = e.clientY + 'px';
+            document.body.appendChild(particle);
+            
+            const angle = (i / 8) * Math.PI * 2;
+            const velocity = 40 + Math.random() * 30;
+            const vx = Math.cos(angle) * velocity;
+            const vy = Math.sin(angle) * velocity;
+            
+            particle.animate([
+                { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                { transform: `translate(${vx}px, ${vy}px) scale(0)`, opacity: 0 }
+            ], {
+                duration: 600,
+                easing: 'cubic-bezier(0, .9, .57, 1)'
+            });
+            
+            setTimeout(() => particle.remove(), 600);
+        }
+    });
+});
+</script>
+
+</body>
+</html>

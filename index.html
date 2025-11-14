@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<title>emt joku gangsta sivu</title>
+<style>
+  body {
+    background-color: #282828;
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(0,0,0,0.05),
+      rgba(0,0,0,0.05) 10px,
+      transparent 10px,
+      transparent 20px
+    );
+    font-family: 'Fredoka One', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  h1 {
+    opacity: 0;
+    transform: translateY(-100px);
+    animation: slideDown 1s ease forwards;
+    animation-delay: 0.3s;
+  }
+
+  h1 span {
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+
+  .round-button {
+    display: inline-block;
+    width: 150px;
+    height: 60px;
+    line-height: 60px;
+    border-radius: 30px;
+    background-color: #6c00d0;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: bold;
+    border: none;
+    margin-top: 20px;
+    transition: 0.3s ease;
+    opacity: 0;
+    transform: rotateY(90deg);
+    animation: flipIn 1s ease forwards;
+    animation-delay: 1s;
+  }
+
+  .round-button:hover {
+    box-shadow: 0 0 10px #6c00d0, 0 0 20px #6c00d0, 0 0 30px #6c00d0, 0 0 40px #ff00ff;
+    transform: scale(1.05);
+  }
+
+  p.bottomtext {
+    position: absolute;
+    bottom: 20px;
+    color: #5e5e5e;
+    font-size: 18px;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: slideUp 1s ease forwards;
+    animation-delay: 1.5s;
+  }
+
+  @keyframes slideDown {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes flipIn {
+    to { opacity: 1; transform: rotateY(0); }
+  }
+  @keyframes slideUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<h1 id="title-text">emt joku gangsta sivu</h1>
+
+<a href="tokasivu.html" class="round-button">CLICK ME</a>
+
+
+<p class="bottomtext">Kesti tehdä about 6 tuntia. GUI tein ite ilman AI:)</p>
+
+<script>
+var h1 = document.getElementById('title-text');
+var txt = h1.textContent;
+var colors = ['#FF0000','#FF7F00','#FFFF00','#00FF00','#0000FF','#4B0082','#8B00FF'];
+h1.textContent = '';
+
+var spans = [];
+for (var i=0; i<txt.length; i++) {
+  var s = document.createElement('span');
+  s.textContent = txt[i];
+  h1.appendChild(s);
+  spans.push(s);
+}
+
+function pickColor(notThis) {
+  var c;
+  do {
+    c = colors[Math.floor(Math.random() * colors.length)];
+  } while(c == notThis);
+  return c;
+}
+
+var count = 0;
+var max = 2000;
+var interval = 150;
+
+var timer = setInterval(function(){
+  var last = pickColor();
+  for (var i=0; i<spans.length; i++) {
+    var c = pickColor(last);
+    spans[i].style.color = c;
+    spans[i].style.textShadow = '0 0 5px '+c+', 0 0 10px '+c+', 0 0 20px '+c;
+    last = c;
+  }
+  count += interval;
+  if(count >= max) {
+    clearInterval(timer);
+    for(var i=0;i<spans.length;i++){
+      (function(j){
+        setTimeout(function(){
+          spans[j].style.transition = 'color 2s, text-shadow 2s';
+          spans[j].style.color = '#000';
+          spans[j].style.textShadow = 'none';
+        }, j*100);
+      })(i);
+    }
+  }
+}, interval);
+</script>
+
+</body>
+</html>
