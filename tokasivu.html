@@ -3,23 +3,17 @@
 <head>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tokasivu</title>
+<title>pelit</title>
 <style>
 body,html{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:'Fredoka One',cursive;background:#282828;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,0.05),rgba(0,0,0,0.05) 10px,transparent 10px,transparent 20px);color:#fff;}
-.kello{position:fixed;top:15px;right:20px;font-size:25px;opacity:0;animation:slideInRight 1.2s ease-out 0.3s forwards;}
+.kello{position:fixed;top:15px;right:20px;font-size:25px;opacity:0;animation:slideInRight 0.7s ease-out 0.16s forwards;}
 .ala-teksti{position:fixed;bottom:15px;width:100%;text-align:center;font-size:16px;color:#aaa;opacity:0;animation:slideInUp 1s ease-out 2.5s forwards;}
-.buttons{margin-top:100px;width:100%;}
-.row{display:flex;justify-content:space-between;padding:0 80px;margin:70px 0;}
+.buttons{margin-top:100px;width:100%;display:flex;justify-content:center;align-items:center;height:calc(100vh - 200px);}
+.row{display:flex;justify-content:center;gap:40px;padding:0 80px;}
 .row button{width:180px;height:60px;transform:rotateY(90deg);opacity:0;}
-.row.top button:nth-child(1){animation:flipIn 0.8s ease-out 0.8s forwards;}
-.row.top button:nth-child(2){animation:flipIn 0.8s ease-out 1s forwards;}
-.row.top button:nth-child(3){animation:flipIn 0.8s ease-out 1.2s forwards;}
-.row.middle button:nth-child(1){animation:flipIn 0.8s ease-out 1.4s forwards;}
-.row.middle button:nth-child(2){animation:flipIn 0.8s ease-out 1.6s forwards;}
-.row.middle button:nth-child(3){animation:flipIn 0.8s ease-out 1.8s forwards;}
-.row.bottom button:nth-child(1){animation:flipIn 0.8s ease-out 2s forwards;}
-.row.bottom button:nth-child(2){animation:flipIn 0.8s ease-out 2.2s forwards;}
-.row.bottom button:nth-child(3){animation:flipIn 0.8s ease-out 2.4s forwards;}
+.row button:nth-child(1){animation:flipIn 0.4s ease-out 0.5s forwards;}
+.row button:nth-child(2){animation:flipIn 0.4s ease-out 0.6s forwards;}
+.row button:nth-child(3){animation:flipIn 0.4s ease-out 0.7s forwards;}
 button{background:#6c00d0;color:#fff;font-size:20px;border:none;border-radius:14px;cursor:pointer;transition:0.25s;position:relative;overflow:hidden;}
 button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 40px #ff00ff;transform:scale(1.05);}
 .ripple{position:absolute;border-radius:50%;border:3px solid rgba(255,0,255,0.8);transform:scale(0);animation:ripple-effect 0.8s ease-out;}
@@ -36,7 +30,6 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
 #score{font-size:18px;margin-bottom:10px;color:#0f0;text-shadow:0 0 10px #0f0;}
 #pongModeSelect{display:none;margin-bottom:10px;}
 #pongModeSelect button{width:150px;margin:5px;}
-/* Стили для игры-кликера */
 .clicker-container {text-align:center;padding:20px;width:550px;max-height:80vh;overflow-y:auto;}
 .clicker-title {font-size:24px;margin-bottom:20px;color:#ff00ff;text-shadow:0 0 10px #ff00ff;}
 .clicker-object {width:200px;height:200px;margin:0 auto 20px;cursor:pointer;transition:transform 0.1s;border-radius:20px;overflow:hidden;background:#333;display:flex;align-items:center;justify-content:center;position:relative;}
@@ -58,7 +51,6 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
 .wash-button {background:linear-gradient(45deg, #00aaff, #00ffaa) !important;font-weight:bold;display:none;}
 .wash-button:hover {background:linear-gradient(45deg, #00ccff, #44ffbb) !important;}
 .wash-button:disabled {background:linear-gradient(45deg, #333, #666) !important;color:#999;}
-/* Стили для достижений */
 .achievements-container {margin-top:20px;text-align:left;}
 .achievements-title {font-size:20px;margin-bottom:10px;color:#ffcc00;text-shadow:0 0 10px #ffcc00;}
 .achievements-grid {display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:10px;max-height:200px;overflow-y:auto;}
@@ -70,7 +62,6 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
 .achievement-name {font-size:14px;font-weight:bold;color:#ffcc00;}
 .achievement-desc {font-size:12px;color:#ccc;}
 .achievement-reward {font-size:11px;color:#0f0;margin-top:2px;}
-/* Стили для вкладок */
 .tabs {display:flex;justify-content:center;margin-bottom:15px;border-bottom:2px solid #444;}
 .tab {padding:8px 15px;cursor:pointer;background:#333;border-radius:8px 8px 0 0;margin:0 5px;transition:background 0.3s;}
 .tab.active {background:#6c00d0;}
@@ -85,16 +76,10 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
 <div class="kello" id="kello">00:00:00</div>
 
 <div class="buttons">
-  <div class="row top">
+  <div class="row">
     <button id="btn1">Snake</button>
     <button id="btn2">Pong</button>
     <button id="btn3">Cat Clicker</button>
-  </div>
-  <div class="row middle">
-    <button>4</button><button>5</button><button>6</button>
-  </div>
-  <div class="row bottom">
-    <button>7</button><button>8</button><button>9</button>
   </div>
 </div>
 
@@ -110,18 +95,15 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
   </div>
   <canvas id="gameCanvas" width="500" height="400"></canvas>
   
-  <!-- Контейнер для игры-кликера -->
   <div id="clickerGame" class="clicker-container" style="display:none;">
     <h2 class="clicker-title">Funny Cat Clicker</h2>
     
-    <!-- Вкладки -->
     <div class="tabs">
       <div class="tab active" data-tab="main">Main</div>
       <div class="tab" data-tab="upgrades">Upgrades</div>
       <div class="tab" data-tab="achievements">Achievements</div>
     </div>
     
-    <!-- Основная вкладка -->
     <div class="tab-content" id="tab-main">
       <div class="clicker-stats">
         <div>Cats: <span id="catCount">0</span></div>
@@ -151,7 +133,6 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
       </div>
     </div>
     
-    <!-- Вкладка улучшений -->
     <div class="tab-content" id="tab-upgrades" style="display:none;">
       <div class="clicker-upgrades">
         <button class="clicker-upgrade" id="upgrade1" data-cost="25" data-type="click" data-value="1">
@@ -187,12 +168,10 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
       </div>
     </div>
     
-    <!-- Вкладка достижений -->
     <div class="tab-content" id="tab-achievements" style="display:none;">
       <div class="achievements-container">
         <div class="achievements-title">Achievements</div>
         <div class="achievements-grid" id="achievementsList">
-          <!-- Достижения будут добавляться через JavaScript -->
         </div>
       </div>
     </div>
@@ -200,7 +179,6 @@ button:hover{box-shadow:0 0 10px #6c00d0,0 0 20px #6c00d0,0 0 30px #6c00d0,0 0 4
 </div>
 
 <script>
-// Создаем аудио элементы для звуков
 const rebirthSound = new Audio('miau.mp3');
 const clickSound = new Audio('click.mp3');
 
@@ -255,7 +233,6 @@ let dx = 0, dy = 0, box = 20, scoreSnake = 0, food = {}, lastTimeSnake, speedSna
 let paddleHeight = 80, paddleWidth = 15, leftY, rightY, ballX, ballY, ballSpeedX, ballSpeedY, scoreBlue = 0, scoreRed = 0;
 let keys = {};
 
-// Переменные для игры-кликера
 let cats = 0;
 let catsPerClick = 1;
 let catsPerSecond = 0;
@@ -272,7 +249,6 @@ let clickCooldown = 0;
 let autoCatsInterval;
 let washInterval;
 
-// Система достижений
 const achievements = [
     { id: 'first_click', name: 'First Pet', desc: 'Pet your first cat', reward: '+0.5% golden cat chance', condition: () => cats >= 1, unlocked: false, bonus: () => goldenCatChance += 0.5 },
     { id: 'hundred_cats', name: 'Cat Lover', desc: 'Collect 100 cats', reward: '+2 cats per click', condition: () => cats >= 100, unlocked: false, bonus: () => catsPerClick += 2 },
@@ -284,7 +260,6 @@ const achievements = [
     { id: 'million_cats', name: 'Catillionaire', desc: 'Collect 1,000,000 cats', reward: '2x production multiplier', condition: () => cats >= 1000000, unlocked: false, bonus: () => globalMultiplier *= 2 }
 ];
 
-// Состояние игры для сохранения
 let gameState = {
     cats: 0,
     catsPerClick: 1,
@@ -310,7 +285,6 @@ let gameState = {
     lastSave: Date.now()
 };
 
-// Загрузка сохраненной игры при запуске
 function loadGame() {
     const saved = localStorage.getItem('catClickerSave');
     if (saved) {
@@ -348,7 +322,6 @@ function loadGame() {
     }
 }
 
-// Сохранение игры
 function saveGame() {
     gameState.cats = cats;
     gameState.catsPerClick = catsPerClick;
@@ -375,7 +348,6 @@ function saveGame() {
     console.log('Game saved successfully');
 }
 
-// Сброс игры
 function resetGame() {
     if (confirm('Are you sure you want to reset your progress? This cannot be undone!')) {
         cats = 0;
@@ -424,7 +396,6 @@ function resetGame() {
     }
 }
 
-// Rebirth система
 function performRebirth() {
     const rebirthRequirement = getRebirthRequirement();
     
@@ -484,17 +455,14 @@ function performRebirth() {
     }
 }
 
-// Получение требования для rebirth
 function getRebirthRequirement() {
     return 50000 * (rebirthCount + 1);
 }
 
-// Получение бонуса за следующий rebirth
 function getNextRebirthBonus() {
     return Math.floor((rebirthCount + 1) * 0.5) + 1;
 }
 
-// Обновление кнопки rebirth
 function updateRebirthButton() {
     const rebirthRequirement = getRebirthRequirement();
     const nextBonus = getNextRebirthBonus();
@@ -516,7 +484,6 @@ function updateRebirthButton() {
     document.getElementById('rebirthCount').textContent = rebirthCount;
 }
 
-// Показать уведомление о rebirth
 function showRebirthNotification(bonus) {
     const notification = document.createElement('div');
     notification.style.cssText = `
@@ -548,7 +515,6 @@ function showRebirthNotification(bonus) {
     }, 3000);
 }
 
-// Система грязной кошки
 function makeCatDirty() {
     if (!isCatDirty && !isWashing) {
         isCatDirty = true;
@@ -558,7 +524,6 @@ function makeCatDirty() {
     }
 }
 
-// Мытье кошки
 function startWashing() {
     if (isCatDirty && !isWashing) {
         isWashing = true;
@@ -580,7 +545,6 @@ function startWashing() {
     }
 }
 
-// Завершение мытья
 function finishWashing() {
     clearInterval(washInterval);
     isCatDirty = false;
@@ -592,7 +556,6 @@ function finishWashing() {
     saveGame();
 }
 
-// Обновление внешнего вида кошки
 function updateCatAppearance() {
     if (isCatDirty) {
         clickableCat.classList.add('dirty');
@@ -605,7 +568,6 @@ function updateCatAppearance() {
     }
 }
 
-// Обновление кнопки мытья
 function updateWashButton() {
     if (isCatDirty && !isWashing) {
         washButton.style.display = 'block';
@@ -626,7 +588,6 @@ function updateWashButton() {
     upgradeWashButton.disabled = cats < Math.ceil(50 * Math.pow(1.5, washSpeed));
 }
 
-// Улучшение скорости мытья
 function upgradeWashSpeed() {
     const cost = Math.ceil(50 * Math.pow(1.5, washSpeed));
     if (cats >= cost) {
@@ -638,7 +599,6 @@ function upgradeWashSpeed() {
     }
 }
 
-// Проверка достижений
 function checkAchievements() {
     let newAchievements = false;
     
@@ -660,7 +620,6 @@ function checkAchievements() {
     }
 }
 
-// Показать уведомление о достижении
 function showAchievementNotification(achievement) {
     const notification = document.createElement('div');
     notification.style.cssText = `
@@ -693,7 +652,6 @@ function showAchievementNotification(achievement) {
     }, 3000);
 }
 
-// Обновление отображения достижений
 function updateAchievementsDisplay() {
     const achievementsList = document.getElementById('achievementsList');
     achievementsList.innerHTML = '';
@@ -715,7 +673,6 @@ function updateAchievementsDisplay() {
     });
 }
 
-// Автосохранение каждые 30 секунд
 function startAutosave() {
     setInterval(() => {
         if (gameMode === "clicker") {
@@ -724,11 +681,9 @@ function startAutosave() {
     }, 30000);
 }
 
-// Загружаем игру при запуске страницы
 loadGame();
 startAutosave();
 
-// Система вкладок
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', function() {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -743,7 +698,6 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
-// Обработчики кнопок игр
 btn1.onclick = () => {
     overlay.style.display = "block";
     popup.style.display = "block";
@@ -808,7 +762,6 @@ function closeGame() {
 closeBtn.onclick = closeGame; 
 overlay.onclick = closeGame;
 
-// ИГРА SNAKE
 function startSnake() {
     snake = [{x: 9 * box, y: 10 * box}]; 
     dx = box; 
@@ -883,7 +836,6 @@ function snakeLoop(timestamp) {
     if(gameMode === "snake") requestAnimationFrame(snakeLoop);
 }
 
-// ИГРА PONG
 function startPong(mode) {
     pongMode = mode; 
     pongModeSelect.style.display = "none";
@@ -1007,7 +959,6 @@ btnHuman.onclick = () => {
     startPong("human");
 }
 
-// CAT CLICKER GAME
 function startClicker() {
     updateClickerStats();
     updateAchievementsDisplay();
@@ -1036,7 +987,6 @@ function startClicker() {
     upgradeWashButton.onclick = upgradeWashSpeed;
 }
 
-// Обновление кнопок улучшений с проверкой rebirth требований
 function updateUpgradeButtons() {
     document.querySelectorAll('.clicker-upgrade').forEach(upgrade => {
         const id = upgrade.id;
@@ -1105,7 +1055,6 @@ function updateClickerStats() {
     });
 }
 
-// Обработчик клика по коту с системой грязной кошки
 let clickCounter = 0;
 const maxClicksBeforeDirty = 50;
 
@@ -1215,7 +1164,6 @@ function showGoldenCatEffect(event) {
     }, 2000);
 }
 
-// Добавляем CSS анимации
 const style = document.createElement('style');
 style.textContent = `
     @keyframes goldenPulse {
@@ -1238,7 +1186,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add click effects to all buttons
 document.querySelectorAll('button').forEach(button => {
     button.addEventListener('click', function(e) {
         const ripple = document.createElement('span');
